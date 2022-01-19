@@ -1,0 +1,164 @@
+ssh -AY khan@lxpool.gsi.de
+password:Dob251990!Khan
+
+ssh -Y virgo-debian10.hpc.gsi.de 
+passphrase: Dob251990!
+
+//ROOt
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.18_cpp11_debian10/bin/thisroot.sh
+
+/u/khan/ mounting
+
+sshfs khan@lxpool.gsi.de:/u/khan Mount/gsi/u
+
+/lustre mounting
+method is in https://hpc.gsi.de/virgo/access/mount_cluster_storage.html
+According to this method
+sshfs -o ProxyJump=lxpool lustre.hpc.gsi.de:/lustre Mount/gsi/lustre
+
+//lustre mounting
+ssh -AY khan@lxpool.gsi.de
+sshfs  khan@lustre.hpc.gsi.de:/lustre/cbm/users/ Mount/lustre/
+personal computer
+sshfs khan@lxpool.gsi.de:/u/khan Mount/gsi/u
+
+
+
+CBMRoot central installation
+source /cvmfs/fairroot.gsi.de/cbm/cbmroot/install/apr20_fr_v18.2.0_fs_jun19p1/bin/CbmRootConfig.sh
+
+
+//AnalysisTree installation on lustre
+...
+/cvmfs/it.gsi.de/cmake/3.15.3/bin/cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_STANDARD=11 ../
+...
+
+
+//using Analysistree
+export LD_LIBRARY_PATH=$LD_LIBRY_PATH:/lustre/cbm/users/khan/cbmsoft/AnalysisTree/install/lib/
+gSystem->Load("libAnalysisTreeBase.so")
+
+
+
+
+//PFSimple installation on lustre
+cd /lustre/cbm/users/shahid/
+git clone git@git.cbm.gsi.de:pwg-c2f/analysis/pf_simple.git
+cd pf_simple/
+mkdir build install
+export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/install/lib/cmake/AnalysisTree 
+/lustre/cbm/users/lubynets/soft/AnalysisTree_2/install_root6.18_cpp11_debian10
+cd build
+/cvmfs/it.gsi.de/cmake/3.15.3/bin/cmake -DCMAKE_INSTALL_PREFIX=../install ../
+make -j install
+//to change git version
+git checkout version_1_1
+
+
+//To run pfsimple every time
+source /home/shahid/cbmsoft/ROOT/install/bin/thisroot.sh
+#the following libaraies should be exported where ever pf_simple is installed
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/cbmsoft/pf_simple/install/lib 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/cbmsoft/pf_simple/install/external/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/cbmsoft/AnalysisTree/install/lib 
+
+**on lustre**
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh;
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/pf_simple/lib/;
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/pf_simple/external/lib;
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib;
+
+//to check that the libraries are imported
+echo $LD_LIBRARY_PATH
+
+//
+
+#oleksi batch file 
+/lustre/cbm/users/lubynets/batch/pfsimple
+
+
+##Git
+git clone link
+git log (shows details of the version)
+git checkout (write version)
+
+
+//running PFSimple
+cd /u/khan/pf_simple/AnalysisTreeInterface/
+modify the main file 
+cd ../build
+make -j install
+cd /lustre/cbm/users/khan/cbmsoft/pf_simple/install/bin/
+./main /u/khan/pf_simple/filelist.txt
+
+
+//login to department computer
+ssh -AY -p222 khan@pipc28.am14.uni-tuebingen.de
+Dark8Matter
+
+
+// lambda simulated qa  on lustre
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/klochkov/soft/temp/AnalysisTreeQA/install/lib:/lustre/cbm/users/klochkov/soft/temp/AnalysisTree/install/lib
+source /lustre/cbm/users/lubynets/soft/root-6/install-cpp11/bin/thisroot.sh
+cp /lustre/cbm/users/klochkov/soft/temp/AnalysisTreeQA/install/bin/lambda_qa /u/flat_trees
+cd flat_trees
+./lambda_qa filelist.txt
+
+
+
+//merge all TTrees after creation
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.18_cpp11_debian10/bin/thisroot.sh
+hadd PlainTree.merged.root */PlainTree.root
+
+//fitting, open root
+~/cbmsoft/Cut_optimization/uncut_data/Project/fit/macro
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/cbmsoft/Cut_optimization/uncut_data/Project/signal_extraction/build/src/
+root -l 
+//type Ali and tab to see the the library has been loaded and the include has added the classes AliHFIn...
+root -l 'FitXicZerotoXiPiInvMass1.C("/home/shahid/cbmsoft/Cut_optimization/uncut_data/Project/pt_y_yield_bdt_cut_0.95_new.root")'
+
+
+//updating fit code
+git status
+git stash           //to save my files
+git pull           //if this doesn't work do the following
+	ssh-keygen -f "/home/shahid/.ssh/known_hosts" -R "git.cbm.gsi.de"
+	git pull
+cd build 
+make
+git stash apply     //to bring back my code
+
+
+
+//new pfsimple
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
+
+
+//at_tree_plainer_install
+git clone git@git.cbm.gsi.de:o.lubynets/at_tree_plainer.git
+cd at_tree_plainer; mkdir build;  //create install on lustre
+//change the main branch to impact_par
+git checkout impact_par
+//source root
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
+//export analysistree 
+export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/cmake/AnalysisTree/
+cmake -DCMAKE_INSTALL_PREFIX=/u/khan/cbmsoft/at_tree_plainer/install/ -DCMAKE_CXX_STANDARD=17 ../
+make -j10 install
+
+//using at_tree_plainer
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/at_tree_plainer/install/lib/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/
+
+
+//installing AnalysisTreeQA
+/cvmfs/fairsoft.gsi.de/debian10/fairsoft/apr21/bin/cmake -DAnalysisTreeQA_BUNDLED_AT_VERSION=v2.2.3 -DAnalysisTreeQA_BUILD_TASKS=on -DCMAKE_INSTALL_PREFIX=/lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/ ../ 
+//using AnalysisTreeQA
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
+export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/cmake/AnalysisTree/
+export LD_LIBRARY_PATH=/lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/lib/
+cd /lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/bin
+./lambda_qa /u/khan/filelist_urqmd_plain_tree.txt
+
+
