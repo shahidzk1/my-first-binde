@@ -14,13 +14,17 @@ sshfs khan@lxpool.gsi.de:/u/khan Mount/gsi/u
 /lustre mounting
 method is in https://hpc.gsi.de/virgo/access/mount_cluster_storage.html
 According to this method
-sshfs -o ProxyJump=lxpool lustre.hpc.gsi.de:/lustre Mount/gsi/lustre
+sshfs -o ProxyJump=lxpool lustre.hpc.gsi.de:/lustre Mount/lustre
 
 //lustre mounting
 ssh -AY khan@lxpool.gsi.de
 sshfs  khan@lustre.hpc.gsi.de:/lustre/cbm/users/ Mount/lustre/
 personal computer
 sshfs khan@lxpool.gsi.de:/u/khan Mount/gsi/u
+
+//for unmount
+umount Mount/gsi/u/
+fusermount -u Mount/lustre/
 
 
 
@@ -115,7 +119,11 @@ hadd PlainTree.merged.root */PlainTree.root
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/cbmsoft/Cut_optimization/uncut_data/Project/signal_extraction/build/src/
 root -l 
 //type Ali and tab to see the the library has been loaded and the include has added the classes AliHFIn...
-root -l 'FitXicZerotoXiPiInvMass1.C("/home/shahid/cbmsoft/Cut_optimization/uncut_data/Project/pt_y_yield_bdt_cut_0.95_new.root")'
+root -l 'FitXicZerotoXiPiInvMass2.C("/home/shahid/cbmsoft/Cut_optimization/uncut_data/Project/m_200_400_bdt_cut_0.8.root")' 
+root -l 'systematics_approach_2M.C("~/cbmsoft/Cut_optimization/uncut_data/Project/2M/urqmd_2M_pt_0_0.6_y_0_1.6_BDT_0.1.root","~/cbmsoft/Cut_optimization/uncut_data/Project/2M/dcm_2M_pt_y_based.root")'
+root -l 'systematics_approach_2M.C("~/cbmsoft/Cut_optimization/uncut_data/Project/2M/urqmd_2M_trained_on_dcm_signal_urqmd_back_in_bin_pt_0_0.6_y_0_1.6_bdt0.6.root","~/cbmsoft/Cut_optimization/uncut_data/Project/2M/dcm_2M_primary_signal_only_trained_on_dcm_signal_urqmd_back_in_bin_pt_0_0.6_y_0_1.6_bdt0.root")'
+
+
 
 
 //updating fit code
@@ -133,7 +141,7 @@ git stash apply     //to bring back my code
 //new pfsimple
 source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
 
-
+vim 
 //at_tree_plainer_install
 git clone git@git.cbm.gsi.de:o.lubynets/at_tree_plainer.git
 cd at_tree_plainer; mkdir build;  //create install on lustre
@@ -143,22 +151,28 @@ git checkout impact_par
 source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
 //export analysistree 
 export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/cmake/AnalysisTree/
-cmake -DCMAKE_INSTALL_PREFIX=/u/khan/cbmsoft/at_tree_plainer/install/ -DCMAKE_CXX_STANDARD=17 ../
+cmake -DCMAKE_INSTALL_PREFIX=/lustre/cbm/users/khan/cbmsoft/at_tree_plainer/install/ -DCMAKE_CXX_STANDARD=17 ../
 make -j10 install
 
 //using at_tree_plainer
-source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/at_tree_plainer/install/lib/
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh;
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/at_tree_plainer/install/lib/;
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/
 
 
 //installing AnalysisTreeQA
 /cvmfs/fairsoft.gsi.de/debian10/fairsoft/apr21/bin/cmake -DAnalysisTreeQA_BUNDLED_AT_VERSION=v2.2.3 -DAnalysisTreeQA_BUILD_TASKS=on -DCMAKE_INSTALL_PREFIX=/lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/ ../ 
 //using AnalysisTreeQA
-source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh
-export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/cmake/AnalysisTree/
-export LD_LIBRARY_PATH=/lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/lib/
+source /lustre/cbm/users/lubynets/soft/root-6/install_6.20_cpp17_debian10/bin/thisroot.sh;
+export AnalysisTree_DIR=/lustre/cbm/users/khan/cbmsoft/AnalysisTree/lib/cmake/AnalysisTree/;
+export LD_LIBRARY_PATH=/lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/lib/;
 cd /lustre/cbm/users/khan/cbmsoft/AnalysisTreeQA/install/bin
 ./lambda_qa /u/khan/filelist_urqmd_plain_tree.txt
+
+//python minimization
+python ComputeCutVarPromptFrac.py config_Ds_PromptFrac_pp5TeV.yml result.root
+
+//treelite macro
+root -l 'treelite.C("/home/shahid/cbmsoft/Cut_optimization/uncut_data/Project/mymodel/filelist1.txt")'
 
 
